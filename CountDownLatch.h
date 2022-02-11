@@ -20,7 +20,7 @@ public:
 
 private:
     mutable MutexLock mutex_;   //在const 成员函数中也可以修改这个成员
-    Conditon cond_;
+    Condition cond_;
     int count_;                 //计数到0，就调用cond_.notifyAll()
 };
 

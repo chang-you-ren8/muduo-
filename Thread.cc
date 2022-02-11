@@ -34,6 +34,8 @@ void *runInThread(void *arg)
     delete threadData;
 
     cb();
+
+    return NULL;
 }
 
 Thread::Thread(const ThreadFunc &cb)

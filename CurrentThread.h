@@ -42,7 +42,7 @@ namespace CurrentThread
     {
         //gcc内置的分支预测优化
         if(__builtin_expect(t_cachedTid == 0, 0))
-            cacheTid();
+            cachedTid();
         return t_cachedTid;
     }
 
