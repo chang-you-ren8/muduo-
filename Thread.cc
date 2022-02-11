@@ -66,6 +66,7 @@ void Thread::start()
     {
         running_ = true;
         latch_.wait();      //等待tid_初始化完成
+        assert(tid_ > 0);
     }
 }
 
