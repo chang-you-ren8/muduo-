@@ -1,0 +1,49 @@
+@startuml 
+
+note bottom of AsyncLogger
+什么是异步日志呢？
+妈的说白了就是生产者-消费者模型的应用
+
+muduo异步日志的实现（个人理解）：
+1.采用基于对象的实现方式，采用面向对象的方法的话
+需要AsyncLogger继承Thread类,而采用基于对象的方式的话，
+只需要AsyncLogger类包含一个Thread对象即可。
+让Thread成员执行AsyncLogger的threadFunc即可。
+我们在AsyncLogger::threadFunc中实现异步日志的逻辑。
+
+2.采用多缓冲区 + c++11的移动语义来实现较高的性能
+end note 
+
+noncopyable <|-- AsyncLogger
+class AsyncLogger
+{
+    __public function__
+    + AsyncLogger(const string &basename,
+        off_t rollSize,
+        time_t flushInterval)
+    + ~AsyncLogger()
+    + void append(const char *msg, int len)
+    + void start()
+    + void stop()
+
+    __private function__
+    - void threadFunc()
+
+    __private data__
+    - const string basename_
+    - const off_t rollSize_
+    - const time_t flushInterval_
+    - bool running_
+
+    __private data__
+    - MutexLock mutex_
+    - Conditon cond_
+    - Thread thread_
+
+    __private data__
+    - BufferPtr curBuffer_
+    - BufferPtr nxtBuffer_
+    - BufferVector buffers_
+}
+
+@enduml 

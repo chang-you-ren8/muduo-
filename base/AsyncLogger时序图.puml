@@ -1,0 +1,12 @@
+@startuml 
+Actor client 
+participant Logger 
+participant LogFile
+participant AsyncLogger 
+
+client -> Logger : Logger::setOutputFunc \n Logger::setFlushFunc
+Logger -> Logger : outputFunc \n flushFunc
+Logger -> AsyncLogger : append
+AsyncLogger -> LogFile : threadFunc
+
+@enduml 

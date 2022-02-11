@@ -1,0 +1,64 @@
+@startuml 
+
+noncopyable <|-- LogFile
+
+note right of LogFile 
+LogFile这个类用于将日志内容写到文件中，
+并且自动进行日志滚动，
+这个类对外只提供两个接口：
+1.void append(const char *msg, size_t len)
+2.void flush()
+end note  
+
+class LogFile
+{
+    __public function__
+    + LogFile(const string &basename, off_t rollBytesSize, time_t flushInterval,
+    bool threadSafe, int checkEveryN)
+    + ~LogFile()
+    + void append(const char *msg, size_t len)
+    + void rollFile()
+
+    __private data__
+    - const std::string basename_
+    - const off_t rollBytesSize_
+    - const int checkEveryN_
+
+    __private data__
+    - time_t start_
+    - time_t lastRollTime_
+    - time_t lastFlushTime_
+    - int count_
+
+    __private data__
+    - unique_ptr<MutexLock> lock_
+    - unique_ptr<AppendFile> file_
+    - string getFileName(time_t *now)
+    - {static} const int kSecondsPerDay
+    - void append_unlock(const char *msg, size_t len)
+}
+
+note as LogFileNote1
+设计一个日志滚动类应该考虑什么？
+1.什么情况下滚动日志？
+- 当日志文件大小超过rollByteSize_时
+- 当新的一天到达时
+
+2.这个LogFile不应该自己处理文件写入的细节
+- 创建一个新的类AppendFile来创建文件，向文件中写入数据
+
+3.是否线程安全
+- 默认是线程安全的，用户可以自己设定
+end note 
+
+note bottom of LogFile
+成员注释：
+1.basename_ : 日志的文件名由basename_ + 创建文件的日期 + 主机名 + 进程id
+2.start_ : 当前天的起始时间(UTC时间)
+3.lastRollTime_ : 上一次回滚的时间
+4.lastFlushTime_ : 上一次刷新的时间
+5.count_ : 用来记录append的调用次数
+6.checkEveryN_ : 当count_ >= checkEveryN_的时候才判断是否需要回滚或者刷新日志
+当然如果文件中的字节数量大于rollBytesSize_那么必须滚回（无需考虑checkEvery_）
+end note 
+@enduml 

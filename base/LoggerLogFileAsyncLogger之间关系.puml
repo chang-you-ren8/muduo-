@@ -1,0 +1,32 @@
+@startuml
+class Logger
+class LogFile
+class LogStream
+class AppendFile
+class AsyncLogger
+
+Logger *-- LogStream 
+LogFile *-- AppendFile 
+AsyncLogger *-- LogFile
+
+
+note as FunctionN
+1.Logger + LogStream的功能：
+用户看不到LogStream的存在，因为LogStream 是Logger的成员。
+用户只需要设置Logger类的outputFunc和flusFunc并调用
+LOG_INFO, LOG_DEBUG等宏即可，不会直接创建Logger对象。
+Logger + LogStream 只是形成日志的具体内容，至于如何将
+日志内容写入文件，以什么样的策略写入文件，这都不是Logger类
+该考虑的。Logger + LogStream 将日志的内容存放到缓冲区，然后
+调用outputFunc来将日志内容写入文件。所以到底如何将日志写入文件，
+异步还是同步，这都不是Logger 该考虑的。
+
+2. LogFile + AppendFile
+AppenFile是LogFile的成员，AppendFile用于:创建和管理文件
+LogFile:实现日志滚动的功能。
+
+3. AsyncLogger 
+AsyncLogger 实现异步写入的功能，但是如何将日志写入到
+文件，最终还是由LogFile来实现的
+end note 
+@enduml 

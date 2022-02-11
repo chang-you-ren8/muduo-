@@ -1,0 +1,44 @@
+@startuml
+
+class Logger 
+{
+    + class SourceFile 
+    - class Impl 
+    - Impl imp_
+
+    + Logger(SourceFile file, int line) 
+    + Logger(SourceFile file, int line, LogLevel level) 
+    + Logger(SourceFile file, int line, LogLevel level, const char *func)
+    + Logger(SourceFile file, int line, bool toAbort)
+    + ~Logger()
+
+
+    + LogStream &stream();
+    + {static} LogLevel logLevel()
+    + {static} void setLogLevel(LogLevel level)
+    + {static} void setOutput(OutputFunc)
+    + {static} void setFlush(FlushFunc)
+
+}
+
+class SourceFile 
+{
+    + SourceFile(const char (&arr)[N])
+    + SourceFile(const char *filename)
+
+    - char *data_
+    - int size_
+}
+
+class Impl
+{
+    + Impl(LogLevel level, int old_errno, const SourceFile &file, int line)
+    + void formatTime()
+    + void finish()
+
+    + Timestamp time_
+    + LogStream stream_
+    + LogLevel level_
+    + int line_
+    + SourceFile basename_
+}
