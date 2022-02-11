@@ -1,0 +1,24 @@
+@startuml 
+
+noncopyable <|-- CountDownLatch
+class CountDownLatch 
+{
+    __public function__
+    + explicit CountDownLatch(int count)
+    + ~CountDownLatch()
+    + void countDown()
+    + int getCount()
+    + void wait()
+
+    __private data__
+    - MutexLock mutex_
+    - Conditon cond_
+    - int count_
+}
+
+note as N0 
+CountDownLatch就是一个屏障。
+就是用来协调线程之间的工作的。
+比如对于变量x,只有线程A对x初始化之后,线程B才能读取x的值。
+end note 
+@enduml 
