@@ -31,6 +31,7 @@ private:
     Channel acceptChannel_;
     int idleFd_;
     bool listening_;
-    NewConnectoinCall newConnectionCallback_;
-}
+    NewConnectoinCallback newConnectionCallback_;
+};
+
 #endif 

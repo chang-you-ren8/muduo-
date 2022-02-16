@@ -23,6 +23,22 @@ public:
     int events() const { return events_; }
     int revents() const { return revents_; }
     void setRevents(int rev) { revents_ = rev; }
+    int index() const { return index_; }
+    void setIndex(int idx) { index_ = idx; }
+
+    //internal use
+    void update();
+    void remove();
+    void enableRead();
+    void enableWrite();
+    void disableRead();
+    void disableWrite();
+    void disableAll();
+    
+    //生命周期保护
+    //Channel是TcpConnection的成员
+    //防止在调用Channel::handleEvent的时候，TcpConnection提前销毁
+    void tie(const std::shared_ptr<void> &obj);
 
     //std::move????
     void setReadCallback(const ReadCallback &cb)
@@ -34,13 +50,14 @@ public:
     void setErrorCallback(const EventCallback &cb)
     { errorCallback_ = cb; }
 
-    void handleEvent();
+    void handleEvent(Timestamp recieveTime);
 private:
     EventLoop *loop_;
 
     int fd_;
     int events_;
     int revents_;
+    int index_; //用于判断这个Channel是否已经在关注列表中(-1表示还未关注)
 
     ReadCallback readCallback_;
     EventCallback writeCallback_;
@@ -49,6 +66,12 @@ private:
 
     weak_ptr<void> tie_;
     bool tied_;
+
+    bool eventHandling_;
+
+    static const int kNoneEvent;
+    static const int kWriteEvent;
+    static const int kReadEvent;
 };
 
 #endif 

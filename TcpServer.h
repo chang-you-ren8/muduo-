@@ -31,8 +31,9 @@ public:
     const std::string &ipPort() const { return ipPort_; }
 
 private:
+    //loop_, acceptor_, TcpServer处于同一个线程中
     EventLoop *loop_;
-    std::unique_ptr<Accetor> acceptor_;
+    std::unique_ptr<Acceptor> acceptor_;
     std::set<TcpConnectionPtr> connections_;    //TcpConnectionPtr -- shared_ptr<TcpConnection>
 
     const std::string name_;
@@ -45,6 +46,7 @@ private:
 
     //被Acceptor::handleRead调用
     void newConnection(int sockfd, const InetAddress &peerAddr);
+    //由TcpConnection::handleClose回调
     void removeConnection(const TcpConnectionPtr &conn);
     void removeConnectionInLoop(const TcpConnectionPtr &conn);
 };

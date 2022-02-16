@@ -1,0 +1,38 @@
+@startuml  
+
+Poller <|-- PollPoller
+Poller <|-- EpollPoller
+PollPoller o-- Channel
+EpollPoller o-- Channel
+
+class Poller
+{
+
+}
+
+note as N1
+muduo的设计是：一个Channel只属于一个EventLoop,关于这个Channel中的所有回调函数都
+在这个EventLoop所处的线程中被调用。实际上Channel最终被添加到了Poller中的ChannelMap中
+对于Channel的任何修改也在这个EventLoop所处的线程中修改
+
+1.Poller是PollPoller和EpollPoller的抽象基类
+PollPoller就是对poll系统调用的封装。
+EpollPoller就是对epoll系统调用的封装
+
+2.那么Poller应该如何设计呢？它应该提供什么样的接口呢？
+PollPoller和EpollPoller共有的：
+.Timestamp poll(ChannelList *channels_, int timeoutMs)
+.void updateChannel(Channel *channel)
+.void removeChannel(Channel *channel)
+.bool hasChannel(Channel *channel)
+那么这几个函数都应该是Poller对外提供的接口，并且是纯虚函数
+
+实际上muduo中的Poller将hasChannel设计成虚函数而非纯虚函数。
+为什么这样呢？因为Poller包含了一个protected data:ChannelMap。
+hasChannel就是判断一个Channel是否在ChannelMap中，所以直接在
+Poller中实现这个函数。
+
+3.Poller内部包含了一个private EventLoop对象，这个设计主要用来判断Poller所属
+的EventLoop 与 Channel所属的EventLoop是不是一样的。
+end note
+@enduml

@@ -1,0 +1,27 @@
+@startuml
+noncopyable <|-- Socket 
+
+class Socket
+{
+    __public function__
+    + explicit Socket(int fd);
+    + ~Socket()
+    + int fd() const
+    + void bind(cosnt InetAddress &localAddr)
+    + void listen()
+    + int accept(InetAddress &peerAddr)
+    + void shutdownWrite()
+    + void setTcpNoDelay(bool on)
+    + void setReuseAddr(bool on)
+    + void setReusePort(bool on)
+    + void setKeepAlive(bool on)
+
+    __private data__
+    - const int sockfd_
+}
+
+note as N1
+Socket这个类用来管理sockfd的生存周期（不负责创建sockfd,只负责关闭）
+end note 
+
+@enduml
