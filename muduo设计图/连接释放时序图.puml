@@ -1,0 +1,7 @@
+@startuml 
+EventLoop --> Channel : handleEvent()
+Channel --> TcpConnection : handleRead()
+TcpConnection --> TcpConnection : handleClose()
+TcpConnection --> TcpServer : removeConnection()
+TcpServer --> TcpConnection : connectDestroy()
+@enduml 

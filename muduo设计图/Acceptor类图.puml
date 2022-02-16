@@ -1,0 +1,53 @@
+@startuml 
+
+noncopyable <|-- Acceptor
+Acceptor *-- Channel
+TcpServer *-- Acceptor
+
+class Acceptor
+{
+    __public function__
+    + Accetpor(EventLoop *loop, const InetAddress &listenAddr)
+    + ~Acceptor()
+    + void listen()
+    + bool listening()
+    + void setNewConnectonCallback(const NewConnectionCallback &cb)
+
+    __private function__
+    - void handleRead()
+
+    __private data__
+    - EventLoop *loop_
+    - Socket acceptSocket_
+    - Channel acceptChannel_
+    - int idleFd_
+    - bool listening_ 
+    - NewConnectionCallback newConnectionCallback_
+}
+
+note as N1 
+Acceptor功能是什么?
+Acceptor就是对listenfd的封装,当listenfd可读时，调用Acceptor::handleRead()
+Acceptor::newConnectionCallback_ 是TcpServer::newConnection(int sockfd, const InetAddress &peerAddr)
+
+Acceptor应该有哪些public function?
+.Acceptor(EventLoop *loop, const InetAddress &listendAddr)
+.~Acceptor()
+.void listen()
+.bool listening()
+.void setNewConnectonCallback(const NewConnectionCallback &cb)     将TcpServer::newConnection传递进来
+
+Acceptor应该有哪些private function ?
+.void handleRead() 当listenfd可读时，回调这个函数,并且在其中调用newConnectionCallback_
+
+Acceptor应该有哪些private data ?
+.EventLoop *loop_
+.Socket acceptSocket_
+.Channel acceptChannel_
+.int idleFd_            预留一个空闲的fd, 用来处理accept的 EMFILE
+.bool listening_
+.NewConnectionCallback newConnectionCallback_
+end note 
+
+
+@enduml 

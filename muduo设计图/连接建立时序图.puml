@@ -1,0 +1,7 @@
+@startuml 
+autonumber
+EventLoop --> Channel : handleEvent()
+Channel --> Acceptor : handleRead()
+Acceptor --> TcpSever : newConnection()
+TcpServer --> TcpConnection : connectEstablished()
+@enduml

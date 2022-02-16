@@ -18,6 +18,9 @@ void print()
 
 int main(void)
 {
+    //pstree -p pid 可以查看进程pid创建的所有线程
+    printf("main thread pid = %d\n", (int)getpid());
+
     vector<unique_ptr<Thread>> threads;
     int n = 5;
     for(int i = 0; i < n; ++i)

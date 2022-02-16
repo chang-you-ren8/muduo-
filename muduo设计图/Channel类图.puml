@@ -1,0 +1,95 @@
+@startuml  
+
+noncopyable <|-- Channel 
+EventLoop o-- Channel 
+
+class Channel 
+{
+    __public function__
+    + Channel(EventLoop *loop, int fd)
+    + ~Channel()
+    + void handleEvent()
+    + void updateChannel()
+    + void removeChannel()
+    + int fd()
+    + int events()
+    + int revents()
+    + string eventsToString()
+    + string reventsToString()
+    + EventLoop *ownwerEventLoop()
+    + void enableRead()
+    + void disableRead()
+    + void enabelWrite()
+    + void disableWrite()
+    + void disableAll()
+    + void setReadCallback(cosnt ReadCallback &cb)
+    + void setWriteCallback(const EventCallback &cb)
+    + void setCloseCallback(const EventCallback &cb)
+    + void setErrorCallback(const EventCallback &cb)
+
+    __private data__
+    - EventLoop *loop_
+    - int fd_
+    - int events_ 
+    - int revents_
+    - ReadCallback readCallback_
+    - EventCallback writeCallback_
+    - EventCallback closeCallback_
+    - EventCallback errorCallback_
+    - weak_ptr<void> tie_
+    - bool tied_
+    - bool eventHandling_
+    - int index_ 
+
+    __private static data__
+    - {static}const int kNoneEvent
+    - {static}const int kReadEvent 
+    - {static}const int kWriteEvent
+}
+
+note as N1 
+Channel的功能 : 对fd, fd上的事件以及对应的回调函数的封装。
+每个Channel只属于一个唯一的EventLoop
+
+Channel应该提供什么样的public function?
+1.void handleEvent()            EventLoop::loop -> Channel::handleEvent
+2.void updateChannel()          Channel::updateChannel -> EventLoop::updateChannel ->Poller::updateChannel
+3.void removeChannel()          Channel::removeChannel -> EventLoop::removeChannel ->Poller::removeChannel
+4.int fd()
+5.int revents()
+6.int events()
+7.string eventsToString()
+9.string reventsToString()      debug使用
+8.EventLoop *ownerEventLoop()
+9.void enableRead()
+10.void disableRead()
+11.void enabelWrite()
+12.void disableWrite()
+13.void disableAll()
+14.void setReadCallback(const ReadCallback &cb)
+15.void setWriteCallback(const EventCallback &cb)
+16.void setCloseCallback(const EventCallback &cb)
+17.void setErrorCallback(const EventCallback &cb)
+
+Channel应该有什么样的private data?
+1.EventLoop *loop_          所属的EventLoop
+2.int fd_
+3.int events_
+4.int revents_              模仿struct pollfd
+5.ReadCallback readCallback_
+6.EventCallback writeCallback_
+7.EventCallback closeCallback_
+8.EventCallback errorCallback_
+9.weak_ptr<void> tie_       保证handleEvent被调用时channel对象不会被释放
+10.bool tied_
+11.bool eventHandling_           正在调用handleEvent
+11.int index_               Poller使用，用于标识这个Channel是否已经添加到Poller中(EpollPoller)
+
+Channel中的static private data ?
+1.static const int kNoneEvent
+2.static const int kReadEvent
+3.static const int kWriteEvent
+
+end note 
+
+@enduml 

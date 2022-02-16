@@ -1,0 +1,5 @@
+- 在设计的时候，什么样的函数可以由其他线程调用，什么样的不可以？
+- 成员函数什么时候使用指针，什么时候只用对象
+- 为什么在头文件中使用一个对象要给出其定义式???
+- shared_ptr线程安全？enable_shared_from_this??
+- c++ public, private, protected继承的应用场景？(effective c++)
