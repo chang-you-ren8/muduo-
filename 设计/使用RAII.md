@@ -1,0 +1,3 @@
+- 使用RAII封装pthread_mutex_t
+- 使用RAII封装pthread_cond_t
+- 使用RAII来管理锁的加锁有解锁
