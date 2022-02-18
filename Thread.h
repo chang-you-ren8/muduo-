@@ -28,7 +28,8 @@ public:
     pid_t *tid_;
     CountDownLatch *latch_;    
 };
-}
+
+}; //detail
 
 class Thread : noncopyable
 {
