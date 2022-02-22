@@ -1,0 +1,32 @@
+@startuml
+
+class Channel
+{
+    __public function__
+    + Channel(EventLoop *loop, int fd)
+    + ~Channel()
+    + void enableRead()
+    + void disableRead()
+    + void enableWrite()
+    + void disableWrite()
+    + void disableAll()
+    + void update()
+    + void remove()
+    + void setRevents(int revents)
+    + int events() const
+    + void handleEvent(Timestamp recieveTime)    
+
+    __private data__
+    - EventLoop *loop_
+    - bool eventHandling_
+    - int events_
+    - int revents_
+    - weak_ptr<void> tie_
+    - bool tied_
+}
+
+note as N1
+Channel是对fd，event, eventHandler的封装。
+每个Channel只属于一个EventLoop
+end note 
+@enduml

@@ -1,0 +1,23 @@
+@startuml  
+
+class Socket
+{
+    __public function__
+    + Socket(int sockfd)
+    + ~Socket()
+    + void bind(const InetAddress &localAddr)
+    + void listen()
+    + int accept(InetAddress *peerAddr)
+    + void setTcpNoDelay(bool on)
+    + void setTcpKeepAlive(bool on)
+
+    __private data__
+    - int sockfd_
+}
+
+note as N1
+Socket类用于管理文件描述符，实现文件描述符的自动释放
+.文件描述符自动释放
+.设置常用的套接字选项
+end note
+@enduml 

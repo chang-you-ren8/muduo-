@@ -1,0 +1,3 @@
+- 明天实现EventLoopThread和EventLoopThreadPool。
+    - 如果要实现TcpConnection的话，要大量时间。
+    - 所以不如先测试EventLoopThread, EventLoopThreadPool。先测试多线程
