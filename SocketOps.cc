@@ -46,3 +46,13 @@ void sockets::close(int sockfd)
 {
     ::close(sockfd);
 }
+
+ssize_t sockets::write(int fd, const void *buf, size_t count)
+{
+    return ::write(fd, buf, count);
+}
+
+ssize_t sockets::read(int fd, void *buf, size_t count)
+{
+    return ::read(fd, buf, count);
+}
