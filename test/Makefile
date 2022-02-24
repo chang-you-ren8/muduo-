@@ -12,7 +12,9 @@ MKDIR=mkdir -p
 RM=rm -rf
 AR=ar r
 
-all_bin=EventLoop_test client EventLoopThread_test
+all_bin=EventLoop_test client EventLoopThread_test EchoServer_test \
+EchoClient_test
+
 all_bin:=$(addprefix $(BIN_DIR)/, $(all_bin))
 .PHONY:all
 all:$(all_bin)

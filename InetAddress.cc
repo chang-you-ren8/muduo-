@@ -12,6 +12,12 @@ InetAddress::InetAddress(uint16_t port)
     sockaddr_.sin_port = ::htons(port);
 }
 
+InetAddress::InetAddress(struct sockaddr_in sockaddr)
+    :   sockaddr_(sockaddr)
+{
+
+}
+
 //我日。。。。下面错了，上面居然。。。。。
 InetAddress::InetAddress(const std::string &ip, uint16_t port)
 {   

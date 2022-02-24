@@ -16,6 +16,7 @@ public:
     explicit InetAddress(uint16_t port);
     //客户端使用
     InetAddress(const std::string &ip, uint16_t port);
+    explicit InetAddress(struct sockaddr_in sockaddr);
 
     sa_family_t family() const 
     { return sockaddr_.sin_family; }

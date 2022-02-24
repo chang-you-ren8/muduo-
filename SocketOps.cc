@@ -47,6 +47,24 @@ void sockets::close(int sockfd)
     ::close(sockfd);
 }
 
+InetAddress sockets::getLocalAddr(int sockfd)
+{
+    struct sockaddr_in addr;
+    socklen_t len = sizeof(addr);
+    int ret = ::getsockname(sockfd, (struct sockaddr *)&addr, &len);
+    assert(ret == 0);
+    return InetAddress(addr);
+}
+
+InetAddress sockets::getPeerAddr(int sockfd)
+{
+    struct sockaddr_in addr;
+    socklen_t len = sizeof(addr);
+    int ret = ::getpeername(sockfd, (struct sockaddr *)&addr, &len);
+    assert(ret == 0);
+    return InetAddress(addr);
+}
+
 ssize_t sockets::write(int fd, const void *buf, size_t count)
 {
     return ::write(fd, buf, count);

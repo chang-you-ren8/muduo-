@@ -1,0 +1,30 @@
+@startuml   
+
+class EventLoopThread
+{
+    __public function__
+    + EventLoopThread()
+    + ~EventLoopThread()
+    + EventLoop  *startLoop();
+
+    __private function__
+    - void threadFunc()
+
+    __private data__
+    - Thread thread_;
+    - CountDownLatch latch_
+    - EventLoop *loop_
+    - bool looping_
+}
+
+note as N1
+.基于对象的设计方法 - EventLoopThread包含一个Thread对象
+.EventLoop *startLoop() : 在线程栈上创建一个EventLoop对象，并且将这个
+EventLoop对象的地址返回。
+.CountDownLatch latch_ : 用于保证loop_的初始化
+.loop_ : 记录线程栈上的EventLoop的地址
+.looping_ ： 用于判断startLoop()函数是否被调用过，
+startLoop()函数只能被调用一次
+end note 
+
+@enduml

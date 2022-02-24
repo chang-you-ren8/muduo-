@@ -49,6 +49,12 @@ public:
         update();
     }
 
+    bool isWriting() const   
+    { return events_ & kWriteEvent; }
+
+    bool isReading() const   
+    { return events_ & kReadEvent; }
+
     void setRevents(int revents)
     { revents_ = revents; }
 

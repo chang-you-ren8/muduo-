@@ -1,0 +1,26 @@
+@startuml  
+
+class EventLoopThreadPool
+{
+    __public function__
+    + explicit EventLoopThreadPool(EventLoop *baseLoop)
+    + ~EventLoopThreadPool()
+    + void setThreadNum(int threadNum)
+    + void start()
+    + EventLoop *getNextLoop()
+    + std::vector<EventLoop *> getAllLoop() const
+
+    __private data__
+    - EventLoop *baseLoop_
+    - int threadNum_
+    - vector<unique_ptr<EventLoopThread>> threads_
+    - vector<EventLoop *> loops_
+}
+
+note as N1
+1.EventLoopThreadPool负责:
+.创建EventLoopThread对象
+.为EventLoopThread对象分配io任务
+2.EventLoopThreadPool必须与baseLoop处于同一个线程中
+end note 
+@enduml
