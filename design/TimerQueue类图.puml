@@ -1,0 +1,108 @@
+@startuml
+
+class Timer
+{
+	__public function__
+	+ Timer(TimerCallback cb, Timestamp when, double interval)
+	+ void run()
+	+ Timestamp expiration() const
+	+ double interval() const
+	+ bool repeat() const
+	+ int64_t sequence() const	
+	+ void restart(Timestamp now)
+
+	__private data__
+	- const TimerCallback timerCallback_
+	- Timestamp expiration_
+	- const bool repeat_
+	- const double interval_
+	- const int64_t sequence_
+	- {static} AtomicInt64_t s_numCreated_
+}
+
+note as N1
+Timer类只是对定时事件的封装。
+一个定时器应该有什么?
+.超时时间?(expiration_)
+.超时应该执行什么操作? (timerCallback_)
+.这个定时器是重复的还是一次性的?(repeat_),如果是重复的那么间隔是多少?(interval_)
+.时间的精度是多少?（UTC时间us）
+.如果是重复的应该提供restart()方法,用来重新设置超时时间
+.其次muduo库还添加了唯一的id。(我在实现自己的Timer时加上了这个成员，但是没有使用)
+end note 
+
+class TimerId 
+{
+	__public function__
+	+ explict TimerId(Timer *timer) 
+	+ Timer *timer() const 
+
+	__private data__
+	- Timer *timer_
+}
+
+note as N2
+实际上在我的实现中我不需要这个类,这是主要是因为我在实现的时候,没有像muduo那样设计TimerQueue
+但是我还是加上了这个类,并且这个类和muduo中也不一样。
+end note 
+
+
+TimerQueue *-- Channel
+class TimerQueue
+{
+	__public function__
+	+ explicit TimerQueue(EventLoop *loop)
+	+ ~TimerQueue()
+	+ TimerId addTimer(TimerCallback cb, Timestamp when, double interval)
+	+ void cancel(TimerId timerId)
+
+	__private function__
+	- void handleRead()
+	- void reset(const std::vector<Entry> &expiredTimers, Timestamp now)
+	- bool insert(Timer *timer)
+	- void cancelInLoop(TimerId timerId)
+	- TimerId addTimerInLoop(Timer *timer)
+
+	__private data__ 
+	using Entry = std::pair<Timestamp, Timer *>
+	- EventLoop *loop_
+	- int timerfd_
+	- std::unique_ptr<Channel> channel_
+	- std::set<Entry> timerList_
+	- std::set<Entry> cancelingTimers_
+	- bool callingExpiredTimers_
+}
+
+note left of TimerQueue  
+cancelingTimers_ 和 callingExpiredTimers_主要是用来
+放置Timer被提前释放掉。具体原因看下面的举例
+end note 
+
+note as N3 
+.遗留问题:我对这个时间精度的控制没有实际的经验
+我实际测试的时候还可以（可以，什么叫可以？？？)
+.实现对于muduo库的使用者他根本不知道这个TimerQueue, Timer, TimerId的存在
+TimerQueue用来管理Timer。
+每个EventLoop都有一个自己的TimerQueue。
+EventLoop对于定时事件提供了四个外部接口:
+.TimerId runAt(Timestamp tim, TimerCallback cb)
+.TimerId runAfter(double delaySeconds, TimerCallback cb)
+.TimerId runEvery(double interval, TimerCallback)
+. void cancel(TimerId timerId)
+
+那么在实现TimerQueue的过程中我们需要注意什么?
+.首先TimerQueue只需要提供两个外部接口
+	.void cancel(TimerId timerId)
+	.TimerId addTimer(TimerCallback cb, Timestamp when, double interval)
+.这个TimerQueue是通过Linux 的timerfd来实现的。为什么这样呢？
+因为这个这样可以将超时事件编程timerfd的可读事件，这样可以和IO复用系统结合。
+这样的话就变成全是fd操作了。
+.TimerQueue包含一个channel,用于将timerfd和TimerQueue::handleRead封装，放到EventLoop中管理
+当超时事件到来时,timerfd可读，这样的话就会回调TimerQueue::handleRead函数。
+.在handleRead中处理超时事件，更新定时器
+.其中有一点要注意。假设现在有两个定时器分别为定时器TimerA, TimerB。在时间点T，发现这个定时器都超时了
+那么现在将TimerA, TimerB从timerList_取出来。TimerA先于TimerB执行，并且TimerA的目的就是删除TimerB，那么这个时候不能
+直接删除delete TimerB，否则的话直接coredump了。
+.我的TimerQueue只是简单的实现，与muduoc++11有较大出入。因为我只是在学习如何设计定时器
+end note 
+@enduml

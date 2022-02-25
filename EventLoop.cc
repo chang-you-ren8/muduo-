@@ -90,6 +90,7 @@ TimerId EventLoop::runAfter(double delaySeconds, TimerCallback cb)
     return timerQueue_.addTimer(std::move(cb), when, 0.0);
 }
 
+//interval s之后执行第一次
 TimerId EventLoop::runEvery(double interval, TimerCallback cb)
 {
     Timestamp when = Timestamp::addTime(Timestamp::now(), interval);

@@ -45,6 +45,8 @@ public:
     
     TimerId  addTimer(TimerCallback cb, Timestamp when, double interval);
 
+    //FixMe
+    //这里未作错误处理，如果cancel同一个TimerId会导致coredump
     void cancel(TimerId timerId);
 
 private:

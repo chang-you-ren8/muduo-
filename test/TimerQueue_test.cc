@@ -43,9 +43,11 @@ void test1()
 	ioLoop->runAfter(2.0, std::bind(&print, 2));
 	ioLoop->runAfter(3.0, std::bind(&print, 3));
 
-	ioLoop->runEvery(4.0, std::bind(&print, 4));
+	auto timerId4 = ioLoop->runEvery(4.0, std::bind(&print, 4));
 
 	sleep(60);
+    ioLoop->cancel(timerId4);
+    sleep(60);
 	//Join????
 }
 
