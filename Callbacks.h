@@ -17,6 +17,7 @@ using std::placeholders::_1;
 using std::placeholders::_2;
 using std::placeholders::_3;
 
+using TimerCallback = std::function<void()>;
 using TcpConnectionPtr = std::shared_ptr<TcpConnection>;
 using NewConnectionCallback = std::function<void(const TcpConnectionPtr &)>;
 using MessageCallback = std::function<void(const TcpConnectionPtr &, Buffer *, Timestamp)>;

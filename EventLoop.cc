@@ -18,13 +18,14 @@ int createNonblockingOrDie()
 const int EventLoop::kTimeoutMs;
 
 EventLoop::EventLoop()
-    :   poller_(Poller::newDefaultPoller(this)),
+	:	poller_(Poller::newDefaultPoller(this)),
         mutex_(),
         looping_(false),
         eventHandling_(false),
         wakeupFd_(createNonblockingOrDie()),
         wakeupChannel_(new Channel(this, wakeupFd_)),
-        tid_(CurrentThread::tid())
+        tid_(CurrentThread::tid()),
+		timerQueue_(this)
 {
     wakeupChannel_->setReadCallback(std::bind(&EventLoop::handleRead, this));
     wakeupChannel_->enableRead();
@@ -76,6 +77,28 @@ void EventLoop::queueInLoop(Functor cb)
     //什么情况？
     if(!isInLoopThread() || eventHandling_)
         wakeup();
+}
+
+TimerId EventLoop::runAt(Timestamp tim, TimerCallback cb)
+{
+    return timerQueue_.addTimer(std::move(cb), tim, 0.0);
+}
+
+TimerId EventLoop::runAfter(double delaySeconds, TimerCallback cb)
+{
+    Timestamp when = Timestamp::addTime(Timestamp::now(), delaySeconds);
+    return timerQueue_.addTimer(std::move(cb), when, 0.0);
+}
+
+TimerId EventLoop::runEvery(double interval, TimerCallback cb)
+{
+    Timestamp when = Timestamp::addTime(Timestamp::now(), interval);
+    return timerQueue_.addTimer(std::move(cb), when, interval);
+}
+
+void EventLoop::cancel(TimerId timerId)
+{
+    timerQueue_.cancel(timerId);
 }
 
 void EventLoop::handleRead()

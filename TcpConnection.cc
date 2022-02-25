@@ -124,7 +124,6 @@ void TcpConnection::connectDestroyed()
 //    printf("use_count[6] = %ld\n", shared_from_this().use_count());
     assert(state() == kDisconnected || state() == kDisconnecting);
     setState(kDisconnected);
-    channel_->disableAll();
     channel_->remove();
 }
 
@@ -170,11 +169,11 @@ void TcpConnection::handleClose()
     loop_->assertInLoopThread();
 
     setState(kDisconnected);
-    //closeCallback_(shared_from_this())会导致coredump。
-    TcpConnectionPtr guard(shared_from_this());
-    //printf("use_count[1] = %ld\n", guard.use_count());
-    closeCallback_(guard);
-    //printf("use_count[5] = %ld\n", guard.use_count());
+    //BUG---------------------------------------------------------BUG
+    //如果不在这里关闭channel_的可读事件，这个handleClose居然会多次触发。
+    //这里有bug
+    channel_->disableAll();
+    closeCallback_(shared_from_this());
 }
 
 void TcpConnection::handleError()

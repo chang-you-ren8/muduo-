@@ -4,6 +4,7 @@
 #include "MutexLock.h"
 #include "CurrentThread.h"
 #include "Poller.h"
+#include "TimerQueue.h"
 
 #include <sys/types.h>
 #include <assert.h>
@@ -41,6 +42,12 @@ public:
     void assertInLoopThread() const
     { assert(isInLoopThread()); }
     
+    //定时器支持
+    TimerId runAt(Timestamp tim, TimerCallback cb);
+    TimerId runAfter(double delaySeconds, TimerCallback cb);
+    TimerId runEvery(double interval, TimerCallback cb);
+    void cancel(TimerId timerId);
+
     pid_t tid() const
     { return tid_; }
 
@@ -48,7 +55,6 @@ private:
     using ChannelList = std::vector<Channel*>;
 
     ChannelList activeChannels_;
-
     std::unique_ptr<Poller> poller_;
 
     MutexLock mutex_;
@@ -64,6 +70,7 @@ private:
     void doPendingFunctors();
 
     pid_t tid_;
+	TimerQueue timerQueue_;
 
     static const int kTimeoutMs = 1000;
 };
